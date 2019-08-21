@@ -31,13 +31,25 @@ def converter(file_md):
 
       for line in md:
         line = line.strip()  # Remove newline character
-        if line is not None:  # Check for then skip empty lines
+        if len(line)is not 0:  # Check for then skip empty lines
           print(len(line))
           line = line.strip()
           line = line.split()
         
           rules_header(line, out_file)
+          #rules_style(line, out_file)
+        else:
+          print('empty line')
 
+      print('EOF: %s' % out_filename)    
+
+
+def rules_style(line, out_file):
+  """Translate Bold, Italics, Underline notation.
+  """
+  b_flag = False
+  i_flag = False
+  u_flag = False
 
 
 
@@ -52,7 +64,8 @@ def rules_header(line, out_file):
   out_file.write('<h2>{}</h2>\n'.format(''.join(line[1:]))) if line[0] == '##' else 0
   out_file.write('<h3>{}</h3>\n'.format(''.join(line[1:]))) if line[0] == '###' else 0
   out_file.write('<h4>{}</h4>\n'.format(''.join(line[1:]))) if line[0] == '####' else 0
-	
+
+
 
 def rules_links(line, out_file):
   """Construct <a> tag from links.
