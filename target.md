@@ -13,7 +13,11 @@ PRE ![alt text](../../images/google.png) POST.
 ## Ordered Lists
 1. First text
 2. Second text
-  - Sub text under 2nd text
 3. Third text
 
 - other unordered text
+- unorder
+- therisr udnersred
+-no space
+* element with a link [click](www.hello.com)
+- space

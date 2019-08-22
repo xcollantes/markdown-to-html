@@ -16,6 +16,8 @@ def converter(file_md):
     Returns: File object of input file. 
 
     Raises: File not found.
+
+    Drawbacks: Does not 
   """  
   
   if not os.path.exists(file_md):
@@ -23,85 +25,173 @@ def converter(file_md):
 
   out_filename = os.path.split(file_md)[-1].split('.')[-2] + '.html'
   
-  flag_ordered_list = False
-  flag_unordered_list = False
+  global flag_is_ol_list
+  _set_is_ol_list(False)
+
+  global flag_is_ul_list
+  _set_is_ul_list(False)
+
 
   # Open Output file
-  with open(out_filename, 'w+') as out_file:
-    print('Writing to file: %s' % out_filename)
+  # with open(out_filename, 'w+') as out_file:
+  #  print('Writing to file: %s' % out_filename)
 	  
+  global temp_output
+  temp_output = ''
+
 	# Open Markdown file
-    with open(file_md, 'r') as md:
+  with open(file_md, 'r') as md:
 
-      for line in md:
-        line = line.strip()  # Remove newline character
-        if len(line)is not 0:  # Check for then skip empty lines
-          print(len(line))
-          #line = line.strip()
-          
+    for line in md:
+      line = line.strip()  # Remove newline character
+      if len(line) is not 0:  # Check for then skip empty lines
+        print(len(line))
+        #line = line.strip()
+        # Structure level parsing
         
-          # Character level parsing
-          rules_style(line, out_file)
+        # Lists parsing
+        rules_ordered_lists(line, temp_output, flag_is_ol_list)
+        rules_unordered_lists(line, temp_output, flag_is_ul_list)
 
-          parse_line = line.split()
-          rules_header(parse_line, out_file)
+        rules_p_tag(line, temp_output)
+        
+        parse_line = line.split()
+        rules_header(parse_line, temp_output)
 
-          rules_links(line, out_file) 
-          rules_images(line, out_file)
-          #is_list_element(str(line), out_file)
-          rules_ordered_lists(line, out_file, flag_ordered_list)
-          #rules_p_tag(line, out_file)
+        # Character level parsing
+        #
+        # These must be performed after higher functions called.  
+        # On char level: links, img, style will be applied.
+        # Following functions must transform on object
+        # temp_output
 
-
-
-
-
-
-
-
-        else:
-          print('empty line')
-
-      print('EOF: %s' % file_md)
+        # rules_style(line, out_file)
+        # rules_images(line, out_file)
+        # rules_links(line, out_file) 
+        
+        
 
 
-def is_list_element(line, out_file):
-  """Determines if line is part of list element.
+        # Regular text: must be last
+        #
 
-  This detects sub lists and spaces accordingly. 
-  TODO(xcollantes@): sub list detection.
+      else:
+        print('empty line')
+
+
+    if flag_is_ul_list is True:
+      append_to_temp('</ul>\n\n')
+
+    if flag_is_ol_list is True:
+      append_to_temp('</ol>\n\n')
+
+    print('EOF: %s' % file_md)
+  print(temp_output)
+
+
+def append_to_temp(element):
+  """Temp level output file append. 
+
+  element: string to be added. 
+
+  This holds the structure of parsed data coming from
+  Markdown.  Character level parsing to be performed
+  on this object called temp_output.  
   """
-  is_list = re.match('^[0-9]\.|^\-|^\+|^\*', line)
-
-  if is_list is not None:
-    print(line)
-    print('IS LIST: ', is_list)
+  global temp_output
 
 
+  temp_output = temp_output + str(element)
 
-def rules_ordered_lists(line, out_file, flag):
+
+def _set_is_ul_list(state):
+  global flag_is_ul_list
+  flag_is_ul_list = state
+
+
+def rules_unordered_lists(line, out_file, is_list):
+  """Convert to <ul> tag with subscript <li>
+  
+  This does not handle multi-level lists 
+  greated than one level deep.  
+  """
+  ul_regex = '^[-|+|*](.*)'
+  content_ul_regex = '^[-|+|*](\s)?(.*)'
+  ordered_element = re.search(ul_regex, line)
+
+  if is_list is False and ordered_element is not None:
+
+    line_parse = re.search(content_ul_regex, line)
+    list_content = line_parse.group(2)
+
+    # line_parse = re.search('^([0-9]).(.*)', line)
+    # number = line_parse.group(1)
+    # list_content = line_parse.group(2)
+
+    append_to_temp('<ul class="bullet">\n  <li>{}</li>\n'.format(list_content))
+
+    _set_is_ul_list(True)
+
+    #out_file.write('LIST: ' + str(is_list) + '... OE: Y ' + ordered_element.string + '\n\n')
+
+  if is_list is True and ordered_element is not None:
+    line_parse = re.search(content_ul_regex, line)
+    list_content = line_parse.group(2)
+
+    append_to_temp('  <li>{}</li>\n'.format(list_content))
+    #out_file.write('LIST: ' + str(is_list) + '... OE: Y ' + ordered_element.string + '\n\n')
+
+  if is_list is True and ordered_element is None:
+    append_to_temp('</ul>\n\n')
+    _set_is_ul_list(False)
+
+  else:
+    return 0
+
+
+def _set_is_ol_list(state):
+  global flag_is_ol_list
+  flag_is_ol_list = state
+
+
+def rules_ordered_lists(line, out_file, is_list):
   """Convert to <ol> tag with subscript <li>
   
   This does not handle multi-level lists 
-  greated than two levels deep.  
+  greated than one level deep.  
   """
   ordered_element = re.search('^[0-9]\..*', line)
 
-  if ordered_element is not None:
+  if is_list is False and ordered_element is not None:
 
     line_parse = re.search('^([0-9]).(.*)', line)
     number = line_parse.group(1)
     list_content = line_parse.group(2)
 
-    print()
-    if flag is False:
-      print('')
-      out_file.write('<ol class="number">\n<li>{}.&nbsp;{}</li>\n'.format(number, list_content))
+    # line_parse = re.search('^([0-9]).(.*)', line)
+    # number = line_parse.group(1)
+    # list_content = line_parse.group(2)
 
-    else:
-      out_file.write('\s\s<li>{}</li>')
+    append_to_temp('<ol class="number">\n  <li>{}.&nbsp;{}</li>\n'.format(number, list_content))
 
-    #if flag is True:
+    _set_is_ol_list(True)
+
+    #out_file.write('LIST: ' + str(is_list) + '... OE: Y\n\n')
+
+  if is_list is True and ordered_element is not None:
+    line_parse = re.search('^([0-9]).(.*)', line)
+    number = line_parse.group(1)
+    list_content = line_parse.group(2)
+
+    append_to_temp('  <li>{}.&nbsp;{}</li>\n'.format(number, list_content))
+    #out_file.write('LIST: ' + str(is_list) + '... OE: Y\n\n')
+
+  if is_list is True and ordered_element is None:
+    append_to_temp('</ol>\n\n')
+    _set_is_ol_list(False)
+
+  else:
+    return 0
 
 
 
@@ -124,7 +214,7 @@ def rules_images(line, out_file):
     img_path = img_md.group(2)
 
     print('Found <img> tag with text as \"{}\" in path \"img_path\".'.format(alt_text, img_path))
-    out_file.write('\n<img src=\"{}\" alt=\"{}\">\n'.format(img_path, alt_text))
+    append_to_temp('\n<img src=\"{}\" alt=\"{}\">\n'.format(img_path, alt_text))
 
 
 
@@ -133,10 +223,10 @@ def rules_header(line, out_file):
     text: Line in file. 
 	  out_file: Output file to write append to.
   """
-  out_file.write('<h1>{}</h1>\n'.format(''.join(line[1:]))) if line[0] == '#' else 0
-  out_file.write('<h2>{}</h2>\n'.format(''.join(line[1:]))) if line[0] == '##' else 0
-  out_file.write('<h3>{}</h3>\n'.format(''.join(line[1:]))) if line[0] == '###' else 0
-  out_file.write('<h4>{}</h4>\n'.format(''.join(line[1:]))) if line[0] == '####' else 0
+  append_to_temp('<h1>{}</h1>\n'.format(''.join(line[1:]))) if line[0] == '#' else 0
+  append_to_temp('<h2>{}</h2>\n'.format(''.join(line[1:]))) if line[0] == '##' else 0
+  append_to_temp('<h3>{}</h3>\n'.format(''.join(line[1:]))) if line[0] == '###' else 0
+  append_to_temp('<h4>{}</h4>\n'.format(''.join(line[1:]))) if line[0] == '####' else 0
 
 
 
@@ -148,7 +238,7 @@ def rules_links(line, out_file):
     return 0
 
   print('Found <a> tag with link \"{}\" directs to \"{}\".'.format(link.group(1), link.group(2)))
-  out_file.write('<a href="{}">{}</a>\n'.format(link.group(2), link.group(1)))
+  append_to_temp('<a href="{}">{}</a>\n'.format(link.group(2), link.group(1)))
     
 
 
