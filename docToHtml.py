@@ -54,7 +54,7 @@ def converter(file_md):
         rules_unordered_lists(line, temp_output, flag_is_ul_list)
 
         rules_p_tag(line, temp_output)
-        
+
         parse_line = line.split()
         rules_header(parse_line, temp_output)
 
@@ -194,6 +194,28 @@ def rules_ordered_lists(line, out_file, is_list):
     return 0
 
 
+
+
+
+def rules_p_tag(line, temp_output):
+  """Parse untagged text as <p> tag
+
+  If not a free text, then push as is to temp_output. 
+  """
+  check_header = re.search('^\#{1,}', line)
+  check_links = re.search('[^!]\[(.*)\]\((.*)\)', line)
+  check_image = re.search('.*!\[(.*)\]\((.*)\)', line)
+  check_list = re.search('^([0-9]|[-|+|*])', line)
+
+  if check_header is None and check_links is None and check_image is None and check_list is None:
+    append_to_temp('<p>{}</p>\n\n'.format(line))  
+
+  else:
+    print('EVALUATION: ', line)
+    print('HEADER ', check_header)
+    print('LINKS ', check_links)
+    print('IMG ', check_image)
+    print('LIST ', check_list)
 
 
 def rules_style(line, out_file):
