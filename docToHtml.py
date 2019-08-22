@@ -23,6 +23,9 @@ def converter(file_md):
 
   out_filename = os.path.split(file_md)[-1].split('.')[-2] + '.html'
   
+  flag_ordered_list = False
+  flag_unordered_list = False
+
   # Open Output file
   with open(out_filename, 'w+') as out_file:
     print('Writing to file: %s' % out_filename)
@@ -34,7 +37,7 @@ def converter(file_md):
         line = line.strip()  # Remove newline character
         if len(line)is not 0:  # Check for then skip empty lines
           print(len(line))
-          line = line.strip()
+          #line = line.strip()
           
         
           # Character level parsing
@@ -45,6 +48,9 @@ def converter(file_md):
 
           rules_links(line, out_file) 
           rules_images(line, out_file)
+          #is_list_element(str(line), out_file)
+          rules_ordered_lists(line, out_file, flag_ordered_list)
+          #rules_p_tag(line, out_file)
 
 
 
@@ -56,7 +62,48 @@ def converter(file_md):
         else:
           print('empty line')
 
-      print('EOF: %s' % out_filename)
+      print('EOF: %s' % file_md)
+
+
+def is_list_element(line, out_file):
+  """Determines if line is part of list element.
+
+  This detects sub lists and spaces accordingly. 
+  TODO(xcollantes@): sub list detection.
+  """
+  is_list = re.match('^[0-9]\.|^\-|^\+|^\*', line)
+
+  if is_list is not None:
+    print(line)
+    print('IS LIST: ', is_list)
+
+
+
+def rules_ordered_lists(line, out_file, flag):
+  """Convert to <ol> tag with subscript <li>
+  
+  This does not handle multi-level lists 
+  greated than two levels deep.  
+  """
+  ordered_element = re.search('^[0-9]\..*', line)
+
+  if ordered_element is not None:
+
+    line_parse = re.search('^([0-9]).(.*)', line)
+    number = line_parse.group(1)
+    list_content = line_parse.group(2)
+
+    print()
+    if flag is False:
+      print('')
+      out_file.write('<ol class="number">\n<li>{}.&nbsp;{}</li>\n'.format(number, list_content))
+
+    else:
+      out_file.write('\s\s<li>{}</li>')
+
+    #if flag is True:
+
+
 
 
 def rules_style(line, out_file):
@@ -70,8 +117,15 @@ def rules_style(line, out_file):
 def rules_images(line, out_file):
   """Convert to <img>
   """
-  img_md = re.search('.*!\[(.*)\]\((.*)\)', link)
-  print(img_md)
+  img_md = re.search('.*!\[(.*)\]\((.*)\)', line)
+  
+  if img_md is not None:
+    alt_text = img_md.group(1)
+    img_path = img_md.group(2)
+
+    print('Found <img> tag with text as \"{}\" in path \"img_path\".'.format(alt_text, img_path))
+    out_file.write('\n<img src=\"{}\" alt=\"{}\">\n'.format(img_path, alt_text))
+
 
 
 def rules_header(line, out_file):
@@ -89,11 +143,11 @@ def rules_header(line, out_file):
 def rules_links(line, out_file):
   """Construct <a> tag from links.
   """
-  link = re.search('\[(.*)\]\((.*)\)', line)
+  link = re.search('[^!]\[(.*)\]\((.*)\)', line)
   if link is None:
     return 0
 
-  print('Found <a> tag with link: {} and description: {}'.format(link.group(1), link.group(2)))
+  print('Found <a> tag with link \"{}\" directs to \"{}\".'.format(link.group(1), link.group(2)))
   out_file.write('<a href="{}">{}</a>\n'.format(link.group(2), link.group(1)))
     
 
