@@ -6,6 +6,7 @@ __author__ = "Xavier Collantes"
 
 import os
 import logging
+import re
 
 
 def converter(file_md):
@@ -34,14 +35,27 @@ def converter(file_md):
         if len(line)is not 0:  # Check for then skip empty lines
           print(len(line))
           line = line.strip()
-          line = line.split()
+          
         
-          rules_header(line, out_file)
-          #rules_style(line, out_file)
+          # Character level parsing
+          rules_style(line, out_file)
+
+          parse_line = line.split()
+          rules_header(parse_line, out_file)
+
+          rules_links(line, out_file)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+
+
+
+
+
+
+
+
         else:
           print('empty line')
 
-      print('EOF: %s' % out_filename)    
+      print('EOF: %s' % out_filename)
 
 
 def rules_style(line, out_file):
@@ -59,7 +73,6 @@ def rules_header(line, out_file):
     text: Line in file. 
 	out_file: Output file to write append to.
   """
-  print(line)
   out_file.write('<h1>{}</h1>\n'.format(''.join(line[1:]))) if line[0] == '#' else 0
   out_file.write('<h2>{}</h2>\n'.format(''.join(line[1:]))) if line[0] == '##' else 0
   out_file.write('<h3>{}</h3>\n'.format(''.join(line[1:]))) if line[0] == '###' else 0
@@ -70,10 +83,12 @@ def rules_header(line, out_file):
 def rules_links(line, out_file):
   """Construct <a> tag from links.
   """
-  for element in line:
-    if element == '<a':
-      out_file.write()	
+  link = re.search('\[(.*)\]\((.*)\)', line)
+  if link is None:
+    return 0
 
+  print('Found <a> tag with link: {} and description: {}'.format(link.group(1), link.group(2)))
+  out_file.write('<a href="{}">{}</a>\n'.format(link.group(2), link.group(1)))
     
 
 
