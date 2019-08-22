@@ -43,7 +43,8 @@ def converter(file_md):
           parse_line = line.split()
           rules_header(parse_line, out_file)
 
-          rules_links(line, out_file)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+          rules_links(line, out_file) 
+          rules_images(line, out_file)
 
 
 
@@ -66,12 +67,17 @@ def rules_style(line, out_file):
   u_flag = False
 
 
+def rules_images(line, out_file):
+  """Convert to <img>
+  """
+  img_md = re.search('.*!\[(.*)\]\((.*)\)', link)
+  print(img_md)
 
 
 def rules_header(line, out_file):
   """
     text: Line in file. 
-	out_file: Output file to write append to.
+	  out_file: Output file to write append to.
   """
   out_file.write('<h1>{}</h1>\n'.format(''.join(line[1:]))) if line[0] == '#' else 0
   out_file.write('<h2>{}</h2>\n'.format(''.join(line[1:]))) if line[0] == '##' else 0
