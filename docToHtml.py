@@ -31,6 +31,9 @@ def converter(file_md):
   global flag_is_ul_list
   _set_is_ul_list(False)
 
+  global flag_is_paragraph
+  _set_is_paragraph(False)
+
 
   # Open Output file
   # with open(out_filename, 'w+') as out_file:
@@ -53,7 +56,7 @@ def converter(file_md):
         rules_ordered_lists(line, temp_output, flag_is_ol_list)
         rules_unordered_lists(line, temp_output, flag_is_ul_list)
 
-        rules_p_tag(line, temp_output)
+        rules_p_tag(line, temp_output, flag_is_paragraph)
 
         parse_line = line.split()
         rules_header(parse_line, temp_output)
@@ -195,9 +198,12 @@ def rules_ordered_lists(line, out_file, is_list):
 
 
 
+def _set_is_paragraph(state):
+  global flag_is_paragraph
+  flag_is_paragraph = state
 
 
-def rules_p_tag(line, temp_output):
+def rules_p_tag(line, temp_output, flag):
   """Parse untagged text as <p> tag
 
   If not a free text, then push as is to temp_output. 
@@ -208,8 +214,16 @@ def rules_p_tag(line, temp_output):
   check_list = re.search('^([0-9]|[-+\*])', line)
 
   if check_header is None and check_list is None:
-    append_to_temp('<p>{}</p>\n\n'.format(line))  
-  
+    if flag_is_paragraph:
+      append_to_temp('  {}\n'.format(line))
+    else:
+      append_to_temp('<p>\n  {}\n'.format(line))
+      _set_is_paragraph(True)
+
+  if (check_header or check_list) and flag_is_paragraph:
+    append_to_temp('</p>\n\n') 
+    _set_is_paragraph(False)
+
     # print('EVALUATION: ', line)
     # print('HEADER ', check_header)
     # print('LINKS ', check_links)
