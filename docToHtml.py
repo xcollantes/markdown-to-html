@@ -50,7 +50,7 @@ def converter(file_md):
       rules_p_tag(line, temp_output, flag_is_paragraph)
 
       
-      #rules_header(parse_line, temp_output)
+      rules_header(line.split(' '), temp_output)
 
       
 
@@ -66,12 +66,9 @@ def converter(file_md):
   for temp_line in temp_output.splitlines():
     print('TEMP: %s' % temp_line)
 
-
   temp_output = re.sub('[!]\[(.*)\]\((.*)\)', img_tag_regex, temp_output)
   temp_output = re.sub('\[(.*)\]\((.*)\)', a_tag_regex, temp_output)
   
-
-
   for temp_line in temp_output.splitlines():
     print('FINL: %s' % temp_line)
 
@@ -217,48 +214,19 @@ def rules_p_tag(line, temp_output, flag):
     _set_is_paragraph(False)
 
 
-def rules_style(line, out_file):
-  """Translate Bold, Italics, Underline notation.
-  """
-  b_flag = False
-  i_flag = False
-  u_flag = False
-
-
-def rules_images(line, out_file):
-  """Convert to <img> with src and alt text. 
-  """
-  img_md = re.search('.*!\[(.*)\]\((.*)\)', line)
-  
-  if img_md is not None:
-    alt_text = img_md.group(1)
-    img_path = img_md.group(2)
-
-    print('Found <img> tag with text as \"{}\" in path \"img_path\".'.format(alt_text, img_path))
-    append_to_temp('\n<img src=\"{}\" alt=\"{}\">\n'.format(img_path, alt_text))
-
-
 def rules_header(line, out_file):
   """
     text: Line in file. 
 	  out_file: Output file to write append to.
   """
-  append_to_temp('<h1>{}</h1>\n'.format(''.join(line[1:]))) if line[0] == '#' else 0
-  append_to_temp('<h2>{}</h2>\n'.format(''.join(line[1:]))) if line[0] == '##' else 0
-  append_to_temp('<h3>{}</h3>\n'.format(''.join(line[1:]))) if line[0] == '###' else 0
-  append_to_temp('<h4>{}</h4>\n'.format(''.join(line[1:]))) if line[0] == '####' else 0
-
-
-def rules_links(line, out_file):
-  """Construct <a> tag from links.
-  """
-  link = re.search('[^!]\[(.*)\]\((.*)\)', line)
-  if link is None:
+  if len(line) is 0:
     return 0
 
-  print('Found <a> tag with link \"{}\" directs to \"{}\".'.format(link.group(1), link.group(2)))
-  append_to_temp('<a href="{}">{}</a>\n'.format(link.group(2), link.group(1)))
-    
+  append_to_temp('<h1>{}</h1>\n'.format(' '.join(line[1:]))) if line[0] == '#' else 0
+  append_to_temp('<h2>{}</h2>\n'.format(' '.join(line[1:]))) if line[0] == '##' else 0
+  append_to_temp('<h3>{}</h3>\n'.format(' '.join(line[1:]))) if line[0] == '###' else 0
+  append_to_temp('<h4>{}</h4>\n'.format(' '.join(line[1:]))) if line[0] == '####' else 0
+
 
 
 converter('target.md')
