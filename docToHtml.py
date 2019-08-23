@@ -207,11 +207,9 @@ def rules_p_tag(line, temp_output):
   check_image = re.search('.*!\[(.*)\]\((.*)\)', line)
   check_list = re.search('^([0-9]|[-+\*])', line)
 
-  if check_header is None and check_image is None and check_list is None:
+  if check_header is None and check_list is None:
     append_to_temp('<p>{}</p>\n\n'.format(line))  
-  if check_image or check_links:
-    append_to_temp(line + '\n\n')
-
+  
     # print('EVALUATION: ', line)
     # print('HEADER ', check_header)
     # print('LINKS ', check_links)
