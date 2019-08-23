@@ -59,7 +59,7 @@ def converter(file_md):
         rules_p_tag(line, temp_output, flag_is_paragraph)
 
         parse_line = line.split()
-        rules_header(parse_line, temp_output)
+        #rules_header(parse_line, temp_output)
 
         # Character level parsing
         #
@@ -213,7 +213,11 @@ def rules_p_tag(line, temp_output, flag):
   check_image = re.search('.*!\[(.*)\]\((.*)\)', line)
   check_list = re.search('^([0-9]|[-+\*])', line)
 
-  if check_header is None and check_list is None:
+  if len(line) is 0 and flag_is_paragraph:
+    append_to_temp('</p>\n\n')
+    _set_is_paragraph(False)
+
+  if check_header is None and check_list is None and len(line) is not 0:
     if flag_is_paragraph:
       append_to_temp('  {}\n'.format(line))
     else:
