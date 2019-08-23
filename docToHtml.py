@@ -115,8 +115,8 @@ def rules_unordered_lists(line, out_file, is_list):
   This does not handle multi-level lists 
   greated than one level deep.  
   """
-  ul_regex = '^[-|+|*](.*)'
-  content_ul_regex = '^[-|+|*](\s)?(.*)'
+  ul_regex = '^[-+\*](.*)'
+  content_ul_regex = '^[-+\*](\s)?(.*)'
   ordered_element = re.search(ul_regex, line)
 
   if is_list is False and ordered_element is not None:
@@ -205,17 +205,18 @@ def rules_p_tag(line, temp_output):
   check_header = re.search('^\#{1,}', line)
   check_links = re.search('[^!]\[(.*)\]\((.*)\)', line)
   check_image = re.search('.*!\[(.*)\]\((.*)\)', line)
-  check_list = re.search('^([0-9]|[-|+|*])', line)
+  check_list = re.search('^([0-9]|[-+\*])', line)
 
-  if check_header is None and check_links is None and check_image is None and check_list is None:
+  if check_header is None and check_image is None and check_list is None:
     append_to_temp('<p>{}</p>\n\n'.format(line))  
+  if check_image or check_links:
+    append_to_temp(line + '\n\n')
 
-  else:
-    print('EVALUATION: ', line)
-    print('HEADER ', check_header)
-    print('LINKS ', check_links)
-    print('IMG ', check_image)
-    print('LIST ', check_list)
+    # print('EVALUATION: ', line)
+    # print('HEADER ', check_header)
+    # print('LINKS ', check_links)
+    # print('IMG ', check_image)
+    # print('LIST ', check_list)
 
 
 def rules_style(line, out_file):
