@@ -42,14 +42,14 @@ def converter(file_md):
 
     for line in md:
       line = line.strip()  # Remove newline character
-      # Structure level parsing
       
+      # Structure level parsing
       rules_ordered_lists(line, temp_output, flag_is_ol_list)
       rules_unordered_lists(line, temp_output, flag_is_ul_list)
 
       rules_p_tag(line, temp_output, flag_is_paragraph)
 
-      #parse_line = line.split()
+      
       #rules_header(parse_line, temp_output)
 
       
@@ -66,19 +66,21 @@ def converter(file_md):
   for temp_line in temp_output.splitlines():
     print('TEMP: %s' % temp_line)
 
-  temp_output = re.sub('[^!]\[(.*)\]\((.*)\)', a_tag_regex, temp_output)
+
   temp_output = re.sub('[!]\[(.*)\]\((.*)\)', img_tag_regex, temp_output)
+  temp_output = re.sub('\[(.*)\]\((.*)\)', a_tag_regex, temp_output)
+  
 
 
   for temp_line in temp_output.splitlines():
     print('FINL: %s' % temp_line)
 
 def a_tag_regex(match):
-  return ' <a href="{}">{}</a>'.format(match.group(2), match.group(1))
+  return '<a href="{}">{}</a>'.format(match.group(2), match.group(1))
 
 
 def img_tag_regex(match):
-  return '\n<img src=\"{}\" alt=\"{}\">'.format(match.group(2), match.group(1))
+  return '<img src=\"{}\" alt=\"{}\">'.format(match.group(2), match.group(1))
 
 
 
