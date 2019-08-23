@@ -5,9 +5,7 @@
 __author__ = "Xavier Collantes"
 
 import os
-import logging
 import re
-
 
 def converter(file_md):
   """
@@ -225,6 +223,3 @@ def rules_header(line, out_file):
   append_to_temp('<h3>{}</h3>\n'.format(' '.join(line[1:]))) if line[0] == '###' else 0
   append_to_temp('<h4>{}</h4>\n'.format(' '.join(line[1:]))) if line[0] == '####' else 0
 
-
-
-converter('target.md')
