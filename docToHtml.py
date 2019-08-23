@@ -17,7 +17,7 @@ def converter(file_md):
 
     Raises: File not found.
 
-    Drawbacks: Does not 
+    Drawbacks: Does not accept all official Markdown rules yet.
   """  
   
   if not os.path.exists(file_md):
@@ -34,11 +34,6 @@ def converter(file_md):
   global flag_is_paragraph
   _set_is_paragraph(False)
 
-
-  # Open Output file
-  # with open(out_filename, 'w+') as out_file:
-  #  print('Writing to file: %s' % out_filename)
-	  
   global temp_output
   temp_output = ''
 
@@ -47,40 +42,17 @@ def converter(file_md):
 
     for line in md:
       line = line.strip()  # Remove newline character
-      if True:  # Check for then skip empty lines
-        print(len(line))
-        #line = line.strip()
-        # Structure level parsing
-        
-        # Lists parsing
-        rules_ordered_lists(line, temp_output, flag_is_ol_list)
-        rules_unordered_lists(line, temp_output, flag_is_ul_list)
+      # Structure level parsing
+      
+      rules_ordered_lists(line, temp_output, flag_is_ol_list)
+      rules_unordered_lists(line, temp_output, flag_is_ul_list)
 
-        rules_p_tag(line, temp_output, flag_is_paragraph)
+      rules_p_tag(line, temp_output, flag_is_paragraph)
 
-        parse_line = line.split()
-        #rules_header(parse_line, temp_output)
+      #parse_line = line.split()
+      #rules_header(parse_line, temp_output)
 
-        # Character level parsing
-        #
-        # These must be performed after higher functions called.  
-        # On char level: links, img, style will be applied.
-        # Following functions must transform on object
-        # temp_output
-
-        # rules_style(line, out_file)
-        # rules_images(line, out_file)
-        # rules_links(line, out_file) 
-        
-        
-
-
-        # Regular text: must be last
-        #
-
-      else:
-        print('empty line')
-
+      
 
     if flag_is_ul_list is True:
       append_to_temp('</ul>\n\n')
@@ -88,8 +60,26 @@ def converter(file_md):
     if flag_is_ol_list is True:
       append_to_temp('</ol>\n\n')
 
-    print('EOF: %s' % file_md)
-  print(temp_output)
+
+  print('*** OUTPUT FILE ***\n%s' % temp_output)
+
+  for temp_line in temp_output.splitlines():
+    print('TEMP: %s' % temp_line)
+
+  temp_output = re.sub('[^!]\[(.*)\]\((.*)\)', a_tag_regex, temp_output)
+  temp_output = re.sub('[!]\[(.*)\]\((.*)\)', img_tag_regex, temp_output)
+
+
+  for temp_line in temp_output.splitlines():
+    print('FINL: %s' % temp_line)
+
+def a_tag_regex(match):
+  return ' <a href="{}">{}</a>'.format(match.group(2), match.group(1))
+
+
+def img_tag_regex(match):
+  return '\n<img src=\"{}\" alt=\"{}\">\n'.format(match.group(2), match.group(1))
+
 
 
 def append_to_temp(element):
@@ -179,15 +169,12 @@ def rules_ordered_lists(line, out_file, is_list):
 
     _set_is_ol_list(True)
 
-    #out_file.write('LIST: ' + str(is_list) + '... OE: Y\n\n')
-
   if is_list is True and ordered_element is not None:
     line_parse = re.search('^([0-9]).(.*)', line)
     number = line_parse.group(1)
     list_content = line_parse.group(2)
 
     append_to_temp('  <li>{}.&nbsp;{}</li>\n'.format(number, list_content))
-    #out_file.write('LIST: ' + str(is_list) + '... OE: Y\n\n')
 
   if is_list is True and ordered_element is None:
     append_to_temp('</ol>\n\n')
@@ -195,7 +182,6 @@ def rules_ordered_lists(line, out_file, is_list):
 
   else:
     return 0
-
 
 
 def _set_is_paragraph(state):
@@ -228,12 +214,6 @@ def rules_p_tag(line, temp_output, flag):
     append_to_temp('</p>\n\n') 
     _set_is_paragraph(False)
 
-    # print('EVALUATION: ', line)
-    # print('HEADER ', check_header)
-    # print('LINKS ', check_links)
-    # print('IMG ', check_image)
-    # print('LIST ', check_list)
-
 
 def rules_style(line, out_file):
   """Translate Bold, Italics, Underline notation.
@@ -244,7 +224,7 @@ def rules_style(line, out_file):
 
 
 def rules_images(line, out_file):
-  """Convert to <img>
+  """Convert to <img> with src and alt text. 
   """
   img_md = re.search('.*!\[(.*)\]\((.*)\)', line)
   
@@ -256,7 +236,6 @@ def rules_images(line, out_file):
     append_to_temp('\n<img src=\"{}\" alt=\"{}\">\n'.format(img_path, alt_text))
 
 
-
 def rules_header(line, out_file):
   """
     text: Line in file. 
@@ -266,7 +245,6 @@ def rules_header(line, out_file):
   append_to_temp('<h2>{}</h2>\n'.format(''.join(line[1:]))) if line[0] == '##' else 0
   append_to_temp('<h3>{}</h3>\n'.format(''.join(line[1:]))) if line[0] == '###' else 0
   append_to_temp('<h4>{}</h4>\n'.format(''.join(line[1:]))) if line[0] == '####' else 0
-
 
 
 def rules_links(line, out_file):

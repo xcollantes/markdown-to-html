@@ -8,7 +8,10 @@ Pre [Click here](https://google.com) post.
 #### h4
 some end text
 
-PRE ![alt text](../../images/google.png) POST.
+Before Image ![alt text](../../images/google.png) post image.
+
+![Stand Alone Pic](https://notahacker.com)
+
 
 ## Ordered Lists
 1. First text
@@ -22,6 +25,8 @@ Single line of free text.
 
 Free text here that continues to 
 second line of free text.
+
+Some text around [this link](https://memegen.com) that you can click.
 
 ## Muh Lists
 - Some text
