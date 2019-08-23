@@ -48,11 +48,9 @@ def converter(file_md):
       rules_unordered_lists(line, temp_output, flag_is_ul_list)
 
       rules_p_tag(line, temp_output, flag_is_paragraph)
-
-      
       rules_header(line.split(' '), temp_output)
 
-      
+
 
     if flag_is_ul_list is True:
       append_to_temp('</ul>\n\n')
