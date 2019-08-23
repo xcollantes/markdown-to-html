@@ -47,7 +47,7 @@ def converter(file_md):
 
     for line in md:
       line = line.strip()  # Remove newline character
-      if len(line) is not 0:  # Check for then skip empty lines
+      if True:  # Check for then skip empty lines
         print(len(line))
         #line = line.strip()
         # Structure level parsing
