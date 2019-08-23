@@ -78,7 +78,7 @@ def a_tag_regex(match):
 
 
 def img_tag_regex(match):
-  return '\n<img src=\"{}\" alt=\"{}\">\n'.format(match.group(2), match.group(1))
+  return '\n<img src=\"{}\" alt=\"{}\">'.format(match.group(2), match.group(1))
 
 
 
