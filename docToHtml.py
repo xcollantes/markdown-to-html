@@ -24,7 +24,7 @@ def converter(file_md, header_html, post_html):
   if header_html is not None and not os.path.exists(header_html):
     raise FileNotFoundError
 	
-  if header_html is not None and not os.path.exists():
+  if header_html is not None and not os.path.exists(post_html):
     raise FileNotFoundError
 
   out_filename = os.path.split(file_md)[-1].split('.')[-2] + '.html'
@@ -80,14 +80,14 @@ def converter(file_md, header_html, post_html):
   
     if header_html is not None:
       with open(header_html, 'r') as header:
-        out.write(header.content)	
+        out.write(header.read() + '\n\n')	
 
     for temp_output_line in temp_output.splitlines():
-      out.write(temp_output_line + '\n')
+      out.write(('\t' * 4) + temp_output_line + '\n')
 
     if post_html is not None:
       with open(post_html, 'r') as footer:
-        out.write(footer.content)
+        out.write(footer.read() + '\n\n')
 
 
 def a_tag_regex(match):
