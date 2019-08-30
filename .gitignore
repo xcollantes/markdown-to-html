@@ -9,7 +9,7 @@ __pycache__/
 # Defined
 *.html
 *.md
-!sample_target.*
+!sample*
 
 # Distribution / packaging
 .Python
