@@ -7,7 +7,7 @@ __author__ = "Xavier Collantes"
 import os
 import re
 
-def converter(file_md):
+def converter(file_md, header_html, post_html):
   """
     file_md: Markdown notated file.
     
@@ -19,6 +19,12 @@ def converter(file_md):
   """  
   
   if not os.path.exists(file_md):
+    raise FileNotFoundError
+	
+  if header_html is not None and not os.path.exists(header_html):
+    raise FileNotFoundError
+	
+  if header_html is not None and not os.path.exists():
     raise FileNotFoundError
 
   out_filename = os.path.split(file_md)[-1].split('.')[-2] + '.html'
@@ -65,8 +71,24 @@ def converter(file_md):
   temp_output = re.sub('[!]\[(.*)\]\((.*)\)', img_tag_regex, temp_output)
   temp_output = re.sub('\[(.*)\]\((.*)\)', a_tag_regex, temp_output)
   
-  for temp_line in temp_output.splitlines():
+  for temp_line in temp_output.splitlines():    
     print('FINL: %s' % temp_line)
+
+
+  # Final output to HTML file
+  with open(out_filename, 'w+') as out:
+  
+    if header_html is not None:
+      with open(header_html, 'r') as header:
+        out.write(header.content)	
+
+    for temp_output_line in temp_output.splitlines():
+      out.write(temp_output_line + '\n')
+
+    if post_html is not None:
+      with open(post_html, 'r') as footer:
+        out.write(footer.content)
+
 
 def a_tag_regex(match):
   return '<a href="{}">{}</a>'.format(match.group(2), match.group(1))

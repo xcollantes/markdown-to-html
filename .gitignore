@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+# Defined
+*.html
+*.md
+!sample_target.*
+
 # Distribution / packaging
 .Python
 build/
